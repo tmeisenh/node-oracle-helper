@@ -8,11 +8,4 @@ WORKDIR /usr/local/oracle-helper
 
 VOLUME ["/oracle-helper"]
 
-COPY package.json .
-
-RUN npm install
-
-COPY lib ./lib
-COPY test ./test
-
-CMD ["npm", "test"]
+CMD ["tail", "-f", "/dev/null"]

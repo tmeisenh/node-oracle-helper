@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oracle-helper-tests
+    volumes:
+      - .:/oracle-helper
+    networks:
+      - n-tier
+
+  db:
+    image: sath89/oracle-12c
+    container_name: db
+    networks:
+      - n-tier
+
+networks:
+  n-tier:
