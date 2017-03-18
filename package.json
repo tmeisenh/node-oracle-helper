@@ -2,7 +2,7 @@
   "name": "oracle-helper",
   "version": "0.0.1",
   "description": "Helper around Oracle",
-  "main": "lib/index.js",
+  "main": "lib/oracle-helper.js",
   "private": false,
   "scripts": {
     "test": "node_modules/mocha/bin/_mocha --reporter spec --recursive "
