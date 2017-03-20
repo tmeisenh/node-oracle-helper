@@ -37,7 +37,7 @@ describe('OracleHelper', () => {
     let pool;
     let connection;
     beforeEach(() => {
-      pool = { getConnection: sinon.stub() }; 
+      pool = {getConnection: sinon.stub()};
       connection = {
         execute: sinon.stub(),
         release: sinon.stub()
@@ -47,7 +47,7 @@ describe('OracleHelper', () => {
     describe('success path', () => {
 
       beforeEach(() => {
-        pool = { getConnection: sinon.stub() }; 
+        pool = {getConnection: sinon.stub()};
         connection = {
           execute: sinon.stub(),
           release: sinon.stub()
@@ -69,6 +69,17 @@ describe('OracleHelper', () => {
           });
       });
 
+      it('uses sane defaults for options to oracledb.execute', () => {
+        let expectedResults = [{}];
+        let defaultOptions = {outFormat: oracledb.OBJECT, autoCommit: true};
+        connection.execute.withArgs(sql, args, defaultOptions).returns(Promise.resolve(expectedResults));
+
+        return testObject.simpleExecute(sql, args, defaultOptions)
+          .then((results) => {
+            expectedResults.should.eql(results);
+          });
+      });
+
       it('only creates one connection pool', () => {
         let expectedResults = [{}];
         connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
@@ -84,7 +95,7 @@ describe('OracleHelper', () => {
     });
 
     describe('error path', () => {
-      it('returns error when creating the pool fails', ()=> {
+      it('returns error when creating the pool fails', () => {
         let expectedError = 'some error';
         sandbox.stub(oracledb, 'createPool').returns(Promise.reject(expectedError));
 
@@ -155,7 +166,7 @@ describe('OracleHelper', () => {
         connection.release.returns(Promise.reject('dropped error'));
 
         return testObject.simpleExecute(sql, args, options)
-          .catch((error) => error.should.eql(expectedError) );
+          .catch((error) => error.should.eql(expectedError));
       });
     });
   });
