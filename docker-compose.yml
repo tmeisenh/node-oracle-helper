@@ -11,6 +11,12 @@ services:
     networks:
       - n-tier
 
+  npmregistry:
+    image: keyvanfatehi/sinopia
+    container_name: npmregistry
+    networks:
+      - n-tier
+
   db:
     image: sath89/oracle-12c
     container_name: db
