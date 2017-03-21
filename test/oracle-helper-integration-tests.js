@@ -4,6 +4,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const should = chai.should();
+const expect = chai.expect;
 chai.use(sinonChai);
 
 const oracledb = require('oracledb');
@@ -23,6 +24,27 @@ describe('OracleHelper Integration Tests', () => {
     testObject = new OracleHelper(configOptions);
   });
 
+  describe('createPool', () => {
+    it('it creates successfully', () => {
+      return testObject.createPool()
+        .then(() => {
+          testObject.pool.should.not.be.undefined;
+        });
+    });
+  });
+
+  describe('destroyPool', () => {
+    it('it resolves successfully when pool does not exist', () => {
+      return testObject.destroyPool()
+        .then(() => expect(testObject.pool).to.be.undefined);
+    });
+
+    it('it resolves successfully', () => {
+      return testObject.createPool()
+        .then(() => testObject.destroyPool())
+        .then(() => expect(testObject.pool).to.be.null);
+    });
+  });
 
   describe('simpleExecute', () => {
     describe('success path', () => {
@@ -42,7 +64,6 @@ describe('OracleHelper Integration Tests', () => {
         this.timeout(1000 * 20);
         let sql = `select 'foo' as foo from dual`;
         let params = [];
-
         return Promise.all([
           testObject.simpleExecute(sql, params),
           testObject.simpleExecute(sql, params),
@@ -58,6 +79,20 @@ describe('OracleHelper Integration Tests', () => {
           resultsArray[4].rows[0].FOO.should.eql('foo');
           testObject.pool.connectionsInUse.should.eql(0);
         });
+      });
+
+      it('returns the results all the sql operations when successful', function () {
+        this.timeout(1000 * 20);
+        let sql = `select 'foo' as foo from dual`;
+        let params = [];
+        return testObject.simpleExecute(sql, params)
+          .then(() => testObject.simpleExecute(sql, params))
+          .then(() => testObject.simpleExecute(sql, params))
+          .then(() => testObject.simpleExecute(sql, params))
+          .then(() => testObject.simpleExecute(sql, params))
+          .then(() => testObject.simpleExecute(sql, params))
+          .then(() => testObject.simpleExecute(sql, params))
+          .then(() => testObject.pool.connectionsInUse.should.eql(0));
       });
     });
 
