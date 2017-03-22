@@ -1,29 +1,34 @@
 {
-  "name": "oracle-helper",
-  "version": "0.0.1",
-  "description": "Helper around Oracle",
-  "main": "lib/oracle-helper.js",
-  "private": false,
-  "scripts": {
-    "test": "nyc mocha"
-  },
-  "keywords": [
-    "oracle",
-    "plugin"
-  ],
-  "license": "MIT",
-  "dependencies": {
-    "oracledb": "1.13.0"
-  },
-  "peerDependencies": {},
-  "engines": {
-    "node": ">=4.0.0"
-  },
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^3.2.0",
-    "nyc": "^10.1.2",
-    "sinon": "^2.0.0",
-    "sinon-chai": "^2.8.0"
-  }
+	"name": "oracle-helper",
+	"version": "0.0.1",
+	"description": "Helper around Oracle",
+	"main": "lib/oracle-helper.js",
+	"homepage": "https://github.com/tmeisenh/node-oracle-helper",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/tmeisenh/node-oracle-helper"
+	},
+	"private": false,
+	"scripts": {
+		"test": "nyc mocha"
+	},
+	"keywords": [
+		"oracle",
+		"plugin"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"oracledb": "1.13.0"
+	},
+	"peerDependencies": {},
+	"engines": {
+		"node": ">=4.0.0"
+	},
+	"devDependencies": {
+		"chai": "^3.5.0",
+		"mocha": "^3.2.0",
+		"nyc": "^10.1.2",
+		"sinon": "^2.0.0",
+		"sinon-chai": "^2.8.0"
+	}
 }
