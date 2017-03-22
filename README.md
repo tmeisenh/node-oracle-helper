@@ -24,3 +24,4 @@ oracleHelper.executeSql(sql, params); // returns native JS promise
 oracleHelper.createPool(); // returns native JS promise
 oracleHelper.destroyPool(); // returns native JS promise
 ```
+This was originally inspired by this [article](https://jsao.io/2015/03/making-a-wrapper-module-for-the-node-js-driver-for-oracle-database).
