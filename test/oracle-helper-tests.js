@@ -11,171 +11,171 @@ const OracleHelper = require('../lib/oracle-helper');
 
 describe('OracleHelper', () => {
 
-  let testObject;
+    let testObject;
 
-  let configOptions = {
-    user: 'user',
-    password: 'password',
-    connectString: 'connect string'
-  };
+    let configOptions = {
+        user: 'user',
+        password: 'password',
+        connectString: 'connect string'
+    };
 
-  let sql = 'select foo from dual';
-  let args = ['foo', 'bar'];
-  let options = {options: 'some'};
-  let sandbox;
+    let sql = 'select foo from dual';
+    let args = ['foo', 'bar'];
+    let options = {options: 'some'};
+    let sandbox;
 
-  beforeEach(() => {
-    sandbox = sinon.sandbox.create();
-    testObject = new OracleHelper(configOptions);
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
-  describe('simpleExecute', () => {
-    let pool;
-    let connection;
     beforeEach(() => {
-      pool = {getConnection: sinon.stub()};
-      connection = {
-        execute: sinon.stub(),
-        release: sinon.stub()
-      };
+        sandbox = sinon.sandbox.create();
+        testObject = new OracleHelper(configOptions);
     });
 
-    describe('success path', () => {
-
-      beforeEach(() => {
-        pool = {getConnection: sinon.stub()};
-        connection = {
-          execute: sinon.stub(),
-          release: sinon.stub()
-        };
-
-        sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
-        pool.getConnection.returns(Promise.resolve(connection));
-        connection.release.returns(Promise.resolve('whatever'));
-      });
-
-      it('uses sane defaults for bindParams to oracledb.execute', () => {
-        connection.execute.returns(Promise.resolve([{}]));
-
-        return testObject.simpleExecute(sql)
-          .then((results) => {
-            const expectedParams = {};
-            connection.execute.calledWith(sql, expectedParams).should.be.true;
-          });
-      });
-
-      it('uses sane defaults for options to oracledb.execute', () => {
-        connection.execute.returns(Promise.resolve([{}]));
-
-        return testObject.simpleExecute(sql, args)
-          .then((results) => {
-            const expectedOptions = {outFormat: oracledb.OBJECT, autoCommit: true};
-            connection.execute.calledWith(sql, args, expectedOptions).should.be.true;
-          });
-      });
-
-      it('returns the results of the sql operation when successful', () => {
-        let expectedResults = [{}];
-        connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
-
-        return testObject.simpleExecute(sql, args, options)
-          .then((results) => {
-            expectedResults.should.eql(results);
-          });
-      });
-
-      it('only creates one connection pool', () => {
-        let expectedResults = [{}];
-        connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
-
-        return testObject.simpleExecute(sql, args, options)
-          .then(() => testObject.simpleExecute(sql, args, options))
-          .then(() => testObject.simpleExecute(sql, args, options))
-          .then((result) => {
-            oracledb.createPool.callCount.should.eql(1);
-          });
-      });
-
+    afterEach(() => {
+        sandbox.restore();
     });
 
-    describe('error path', () => {
-      it('returns error when creating the pool fails', () => {
-        let expectedError = 'some error';
-        sandbox.stub(oracledb, 'createPool').returns(Promise.reject(expectedError));
+    describe('simpleExecute', () => {
+        let pool;
+        let connection;
+        beforeEach(() => {
+            pool = {getConnection: sinon.stub()};
+            connection = {
+                execute: sinon.stub(),
+                release: sinon.stub()
+            };
+        });
 
-        return testObject.simpleExecute(sql, args, options)
-          .catch((error) => {
-            expectedError.should.eql(error)
-          });
-      });
+        describe('success path', () => {
 
-      it('returns error when creating the connection fails', () => {
-        let expectedError = 'some error';
+            beforeEach(() => {
+                pool = {getConnection: sinon.stub()};
+                connection = {
+                    execute: sinon.stub(),
+                    release: sinon.stub()
+                };
 
-        sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
-        pool.getConnection.returns(Promise.reject(expectedError));
+                sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
+                pool.getConnection.returns(Promise.resolve(connection));
+                connection.release.returns(Promise.resolve('whatever'));
+            });
 
-        return testObject.simpleExecute(sql, args, options)
-          .catch((error) => {
-            expectedError.should.eql(error)
-          });
-      });
+            it('uses sane defaults for bindParams to oracledb.execute', () => {
+                connection.execute.returns(Promise.resolve([{}]));
 
-      it('returns error when executing the sql fails', () => {
-        let expectedError = 'some error';
+                return testObject.simpleExecute(sql)
+                    .then((results) => {
+                        const expectedParams = {};
+                        connection.execute.calledWith(sql, expectedParams).should.be.true;
+                    });
+            });
 
-        sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
-        pool.getConnection.returns(Promise.resolve(connection));
-        connection.release.returns(Promise.resolve('whatever'));
-        connection.execute.returns(Promise.reject(expectedError));
+            it('uses sane defaults for options to oracledb.execute', () => {
+                connection.execute.returns(Promise.resolve([{}]));
 
-        return testObject.simpleExecute(sql, args, options)
-          .catch((error) => {
-            expectedError.should.eql(error)
-          });
-      });
+                return testObject.simpleExecute(sql, args)
+                    .then((results) => {
+                        const expectedOptions = {outFormat: oracledb.OBJECT, autoCommit: true};
+                        connection.execute.calledWith(sql, args, expectedOptions).should.be.true;
+                    });
+            });
 
-      it('releases connection when executing the sql fails', () => {
-        let expectedError = 'some error';
+            it('returns the results of the sql operation when successful', () => {
+                let expectedResults = [{}];
+                connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
 
-        sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
-        pool.getConnection.returns(Promise.resolve(connection));
-        connection.release.returns(Promise.resolve('whatever'));
-        connection.execute.returns(Promise.reject(expectedError));
+                return testObject.simpleExecute(sql, args, options)
+                    .then((results) => {
+                        expectedResults.should.eql(results);
+                    });
+            });
 
-        return testObject.simpleExecute(sql, args, options)
-          .catch((error) => {
-            connection.release.callCount.should.eql(1);
-          });
-      });
+            it('only creates one connection pool', () => {
+                let expectedResults = [{}];
+                connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
 
-      it('returns results of sql when releasing connection fails', () => {
-        let expectedResults = [{}];
+                return testObject.simpleExecute(sql, args, options)
+                    .then(() => testObject.simpleExecute(sql, args, options))
+                    .then(() => testObject.simpleExecute(sql, args, options))
+                    .then((result) => {
+                        oracledb.createPool.callCount.should.eql(1);
+                    });
+            });
 
-        sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
-        pool.getConnection.returns(Promise.resolve(connection));
-        connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
-        connection.release.returns(Promise.reject('dropped error'));
+        });
 
-        return testObject.simpleExecute(sql, args, options)
-          .then((results) => results.should.eql(expectedResults));
-      });
+        describe('error path', () => {
+            it('returns error when creating the pool fails', () => {
+                let expectedError = 'some error';
+                sandbox.stub(oracledb, 'createPool').returns(Promise.reject(expectedError));
 
-      it('returns sql execution error when releasing the connection fails', () => {
-        let expectedError = 'some error';
+                return testObject.simpleExecute(sql, args, options)
+                    .catch((error) => {
+                        expectedError.should.eql(error)
+                    });
+            });
 
-        sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
-        pool.getConnection.returns(Promise.resolve(connection));
-        connection.execute.withArgs(sql, args, options).returns(Promise.reject(expectedError));
-        connection.release.returns(Promise.reject('dropped error'));
+            it('returns error when creating the connection fails', () => {
+                let expectedError = 'some error';
 
-        return testObject.simpleExecute(sql, args, options)
-          .catch((error) => error.should.eql(expectedError));
-      });
+                sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
+                pool.getConnection.returns(Promise.reject(expectedError));
+
+                return testObject.simpleExecute(sql, args, options)
+                    .catch((error) => {
+                        expectedError.should.eql(error)
+                    });
+            });
+
+            it('returns error when executing the sql fails', () => {
+                let expectedError = 'some error';
+
+                sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
+                pool.getConnection.returns(Promise.resolve(connection));
+                connection.release.returns(Promise.resolve('whatever'));
+                connection.execute.returns(Promise.reject(expectedError));
+
+                return testObject.simpleExecute(sql, args, options)
+                    .catch((error) => {
+                        expectedError.should.eql(error)
+                    });
+            });
+
+            it('releases connection when executing the sql fails', () => {
+                let expectedError = 'some error';
+
+                sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
+                pool.getConnection.returns(Promise.resolve(connection));
+                connection.release.returns(Promise.resolve('whatever'));
+                connection.execute.returns(Promise.reject(expectedError));
+
+                return testObject.simpleExecute(sql, args, options)
+                    .catch((error) => {
+                        connection.release.callCount.should.eql(1);
+                    });
+            });
+
+            it('returns results of sql when releasing connection fails', () => {
+                let expectedResults = [{}];
+
+                sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
+                pool.getConnection.returns(Promise.resolve(connection));
+                connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
+                connection.release.returns(Promise.reject('dropped error'));
+
+                return testObject.simpleExecute(sql, args, options)
+                    .then((results) => results.should.eql(expectedResults));
+            });
+
+            it('returns sql execution error when releasing the connection fails', () => {
+                let expectedError = 'some error';
+
+                sandbox.stub(oracledb, 'createPool').returns(Promise.resolve(pool));
+                pool.getConnection.returns(Promise.resolve(connection));
+                connection.execute.withArgs(sql, args, options).returns(Promise.reject(expectedError));
+                connection.release.returns(Promise.reject('dropped error'));
+
+                return testObject.simpleExecute(sql, args, options)
+                    .catch((error) => error.should.eql(expectedError));
+            });
+        });
     });
-  });
 });
