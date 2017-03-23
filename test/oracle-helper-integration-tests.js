@@ -112,6 +112,7 @@ describe('OracleHelper Integration Tests', () => {
             sinon.assert.fail('unexpected promise resolve');
           }).catch((error) => {
             error.should.match(/^Error: ORA-00904: "FOO": invalid identifier/);
+            testObject.pool.connectionsInUse.should.eql(0);
           });
       });
 
