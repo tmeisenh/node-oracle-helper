@@ -97,29 +97,34 @@ describe('OracleHelper Integration Tests', () => {
     });
 
     describe('error path', () => {
+
       it('returns an error when the one sql operation failed', function () {
         this.timeout(1000 * 20);
         let sql = `select foo as foo from dual`;
         let params = [];
 
         return testObject.simpleExecute(sql, params)
-          .catch((error) => {
+          .then((any) => { 
+            sinon.assert.fail('unexpected promise resolve');
+          }).catch((error) => {
             error.should.match(/^Error: ORA-00904: "FOO": invalid identifier/);
           });
       });
 
       it('returns the first error when any of the one sql operations fails', function () {
         this.timeout(1000 * 20);
-        let sql = `select foo as foo from dual`;
+        let sqlBad = `select foo as foo from dual`;
         let params = [];
 
         return Promise.all([
-          testObject.simpleExecute(sql, params),
-          testObject.simpleExecute(sql, params),
-          testObject.simpleExecute(sql, params),
-          testObject.simpleExecute(sql, params),
-          testObject.simpleExecute(sql, params),
-        ]).catch((firstError) => {
+          testObject.simpleExecute(sqlBad, params),
+          testObject.simpleExecute(sqlBad, params),
+          testObject.simpleExecute(sqlBad, params),
+          testObject.simpleExecute(sqlBad, params),
+          testObject.simpleExecute(sqlBad, params),
+        ]).then((any) => { 
+          sinon.assert.fail('unexpected promise resolve');
+        }).catch((firstError) => {
           firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/);
           testObject.pool.connectionsInUse.should.eql(0);
         });
@@ -137,7 +142,9 @@ describe('OracleHelper Integration Tests', () => {
           testObject.simpleExecute(sqlGood, params),
           testObject.simpleExecute(sqlBad, params),
           testObject.simpleExecute(sqlGood, params)
-        ]).catch((firstError) => {
+        ]).then((any) => { 
+          sinon.assert.fail('unexpected promise resolve');
+        }).catch((firstError) => {
           firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/);
           testObject.pool.connectionsInUse.should.eql(0);
         });
