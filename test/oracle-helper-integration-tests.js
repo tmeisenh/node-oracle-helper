@@ -24,6 +24,10 @@ describe('OracleHelper Integration Tests', () => {
     testObject = new OracleHelper(configOptions);
   });
 
+  afterEach(() => {
+    return testObject.destroyPool();
+  });
+
   describe('createPool', () => {
     it('it creates successfully', () => {
       return testObject.createPool()
