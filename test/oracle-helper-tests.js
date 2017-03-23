@@ -58,23 +58,31 @@ describe('OracleHelper', () => {
         connection.release.returns(Promise.resolve('whatever'));
       });
 
+      it('uses sane defaults for bindParams to oracledb.execute', () => {
+        connection.execute.returns(Promise.resolve([{}]));
+
+        return testObject.simpleExecute(sql)
+          .then((results) => {
+            const expectedParams = {};
+            connection.execute.calledWith(sql, expectedParams).should.be.true;
+          });
+      });
+
+      it('uses sane defaults for options to oracledb.execute', () => {
+        connection.execute.returns(Promise.resolve([{}]));
+
+        return testObject.simpleExecute(sql, args)
+          .then((results) => {
+            const expectedOptions = {outFormat: oracledb.OBJECT, autoCommit: true};
+            connection.execute.calledWith(sql, args, expectedOptions).should.be.true;
+          });
+      });
 
       it('returns the results of the sql operation when successful', () => {
         let expectedResults = [{}];
         connection.execute.withArgs(sql, args, options).returns(Promise.resolve(expectedResults));
 
         return testObject.simpleExecute(sql, args, options)
-          .then((results) => {
-            expectedResults.should.eql(results);
-          });
-      });
-
-      it('uses sane defaults for options to oracledb.execute', () => {
-        let expectedResults = [{}];
-        let defaultOptions = {outFormat: oracledb.OBJECT, autoCommit: true};
-        connection.execute.withArgs(sql, args, defaultOptions).returns(Promise.resolve(expectedResults));
-
-        return testObject.simpleExecute(sql, args, defaultOptions)
           .then((results) => {
             expectedResults.should.eql(results);
           });
