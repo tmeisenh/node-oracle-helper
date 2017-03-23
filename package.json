@@ -1,6 +1,6 @@
 {
 	"name": "oracle-helper",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Helper around Oracle",
 	"main": "lib/oracle-helper.js",
 	"homepage": "https://github.com/tmeisenh/node-oracle-helper",
