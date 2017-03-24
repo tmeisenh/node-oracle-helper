@@ -69,7 +69,10 @@ describe('OracleHelper', () => {
 
     it('it creates successfully when pool does not exist', () => {
       return testObject.createPool()
-        .then(() => testObject.pool.should.eql(pool));
+        .then(() => {
+          testObject.pool.should.eql(pool);
+          oracledb.createPool.calledWith(configOptions);
+        });
     });
 
     it('only creates one connection pool', () => {
