@@ -16,7 +16,7 @@
 		"oracle",
 		"plugin"
 	],
-	"license": "MIT",
+	"license": "BSD-2-Clause-FreeBSD",
 	"dependencies": {
 		"oracledb": "1.13.0"
 	},
@@ -25,10 +25,10 @@
 		"node": ">=4.0.0"
 	},
 	"devDependencies": {
-		"chai": "^3.5.0",
-		"mocha": "^3.2.0",
-		"nyc": "^10.1.2",
-		"sinon": "^2.0.0",
-		"sinon-chai": "^2.8.0"
+		"chai": "3.5.0",
+		"mocha": "3.2.0",
+		"nyc": "10.1.2",
+		"sinon": "2.0.0",
+		"sinon-chai": "2.8.0"
 	}
 }
