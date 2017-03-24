@@ -1,5 +1,3 @@
-oracle-helper
-============
 
 The official Oracle node driver is pretty good but it requires a lot of boilerplate to use and boilerplate can be errorprone.
 This project aims to make life a little easier by proving a promise-based api wrapper around the Oracle node driver API.
@@ -26,6 +24,7 @@ oracleHelper.destroyPool(); // returns native JS promise
 
 Run some sql
 > Returns normal native JS Promise
+> One auto-releasing connection is used per method invocation.
 ```javascript
 const sql = 'select * from some_table where id = :in_id';
 const params = {in_id: 'myid'}; // full oracle bind params support
