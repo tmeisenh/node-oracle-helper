@@ -128,43 +128,46 @@ describe('OracleHelper Integration Tests', () => {
           });
       });
 
-      // @see https://github.com/oracle/node-oracledb/issues/350#issuecomment-237922805 (Promise.all issue)
-      it('returns the first error when any of the one sql operations fails', function () {
-        this.timeout(1000 * 20);
-        let sqlBad = `select foo as foo from dual`;
-        let params = [];
+      describe('Promise.all error handling', () => {
+        // @see https://github.com/oracle/node-oracledb/issues/350#issuecomment-237922805 (Promise.all issue)
+        // Promise.all does a fail-fast when the first rejection occurs and does not wait for all promises to resolve or reject.
+        // The tests wait a small amount of time to give the connections time to finish and close their connections.
+        it('returns the first error when any of the one sql operations fails', function () {
+          this.timeout(1000 * 20);
+          let sqlBad = `select foo as foo from dual`;
+          let params = [];
 
-        return Promise.all([
-          testObject.simpleExecute(sqlBad, params),
-          testObject.simpleExecute(sqlBad, params),
-          testObject.simpleExecute(sqlBad, params),
-          testObject.simpleExecute(sqlBad, params),
-          testObject.simpleExecute(sqlBad, params),
-        ]).then((any) => {
-          sinon.assert.fail('unexpected promise resolve');
-        }).catch((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
-          .then(() => waitForConnectionsToClear(testObject.pool))
-          .then(() => testObject.pool.connectionsInUse.should.eql(0));
-      });
+          return Promise.all([
+            testObject.simpleExecute(sqlBad, params),
+            testObject.simpleExecute(sqlBad, params),
+            testObject.simpleExecute(sqlBad, params),
+            testObject.simpleExecute(sqlBad, params),
+            testObject.simpleExecute(sqlBad, params),
+          ]).then((any) => {
+            sinon.assert.fail('unexpected promise resolve');
+          }).catch((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
+            .then(() => waitForConnectionsToClear(testObject.pool))
+            .then(() => testObject.pool.connectionsInUse.should.eql(0));
+        });
 
-      // @see https://github.com/oracle/node-oracledb/issues/350#issuecomment-237922805 (Promise.all issue)
-      it('returns the first error when any of the one sql operations fails', function () {
-        this.timeout(1000 * 20);
-        let sqlGood = `select 'foo' as foo from dual`;
-        let sqlBad = `select foo as foo from dual`;
-        let params = [];
+        it('returns the first error when any of the one sql operations fails', function () {
+          this.timeout(1000 * 20);
+          let sqlGood = `select 'foo' as foo from dual`;
+          let sqlBad = `select foo as foo from dual`;
+          let params = [];
 
-        return Promise.all([
-          testObject.simpleExecute(sqlGood, params),
-          testObject.simpleExecute(sqlGood, params),
-          testObject.simpleExecute(sqlGood, params),
-          testObject.simpleExecute(sqlBad, params),
-          testObject.simpleExecute(sqlGood, params)
-        ]).then((any) => {
-          sinon.assert.fail('unexpected promise resolve');
-        }).catch((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
-          .then(() => waitForConnectionsToClear(testObject.pool))
-          .then(() => testObject.pool.connectionsInUse.should.eql(0));
+          return Promise.all([
+            testObject.simpleExecute(sqlGood, params),
+            testObject.simpleExecute(sqlGood, params),
+            testObject.simpleExecute(sqlGood, params),
+            testObject.simpleExecute(sqlBad, params),
+            testObject.simpleExecute(sqlGood, params)
+          ]).then((any) => {
+            sinon.assert.fail('unexpected promise resolve');
+          }).catch((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
+            .then(() => waitForConnectionsToClear(testObject.pool))
+            .then(() => testObject.pool.connectionsInUse.should.eql(0));
+        });
       });
     });
   });
