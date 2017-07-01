@@ -53,15 +53,24 @@ describe('OracleHelper Integration Tests', () => {
   });
 
   describe('destroyPool', () => {
-    it('it resolves successfully when pool does not exist', () => {
-      return testObject.destroyPool()
-        .then(() => expect(testObject.pool).to.be.undefined);
+    describe('when pool does not exist', () => {
+      it('it resolves successfully when pool does not exist', () => {
+        return testObject.destroyPool().should.eventually.be.fulfilled
+          .then(() => expect(testObject.pool).to.be.undefined);
+      });
     });
 
-    it('it destroys the pool and resolves successfully when pool exists', () => {
-      return testObject.createPool()
-        .then(() => testObject.destroyPool())
-        .then(() => expect(testObject.pool).to.be.null);
+    describe('when pool exists', () => {
+      beforeEach(() => {
+        return testObject.createPool();
+      });
+
+      it('it destroys the pool and resolves successfully when pool exists', () => {
+        pool.release.returns(Promise.resolve());
+
+        return testObject.destroyPool().should.eventually.be.fulfilled
+          .then(() => expect(testObject.pool).to.be.null);
+      });
     });
   });
 
