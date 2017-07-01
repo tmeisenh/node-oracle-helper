@@ -1,11 +1,14 @@
 'use strict';
 
 const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const should = chai.should();
 const expect = chai.expect;
+
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 
 const oracledb = require('oracledb');
 const OracleHelper = require('../lib/oracle-helper');
@@ -14,7 +17,7 @@ describe('OracleHelper Integration Tests', () => {
 
   let testObject;
 
-  let configOptions = {
+  const configOptions = {
     user: 'system',
     password: 'oracle',
     connectString: 'db:1521/xe.oracle.docker'
@@ -66,8 +69,8 @@ describe('OracleHelper Integration Tests', () => {
     describe('success path', () => {
       it('returns the results of the sql operation when successful', function () {
         this.timeout(1000 * 20);
-        let sql = `select 'foo' as foo from dual`;
-        let params = [];
+        const sql = `select 'foo' as foo from dual`;
+        const params = {};
 
         return testObject.simpleExecute(sql, params)
           .then((results) => {
@@ -78,8 +81,8 @@ describe('OracleHelper Integration Tests', () => {
 
       it('returns the results all the sql operations when successful', function () {
         this.timeout(1000 * 20);
-        let sql = `select 'foo' as foo from dual`;
-        let params = [];
+        const sql = `select 'foo' as foo from dual`;
+        const params = {};
         return Promise.all([
           testObject.simpleExecute(sql, params),
           testObject.simpleExecute(sql, params),
@@ -99,8 +102,8 @@ describe('OracleHelper Integration Tests', () => {
 
       it('returns the results all the sql operations when successful', function () {
         this.timeout(1000 * 20);
-        let sql = `select 'foo' as foo from dual`;
-        let params = [];
+        const sql = `select 'foo' as foo from dual`;
+        const params = {};
         return testObject.simpleExecute(sql, params)
           .then(() => testObject.simpleExecute(sql, params))
           .then(() => testObject.simpleExecute(sql, params))
@@ -116,8 +119,8 @@ describe('OracleHelper Integration Tests', () => {
 
       it('returns an error when the one sql operation failed', function () {
         this.timeout(1000 * 20);
-        let sql = `select foo as foo from dual`;
-        let params = [];
+        const sql = `select foo as foo from dual`;
+        const params = {};
 
         return testObject.simpleExecute(sql, params)
           .then((any) => {
@@ -135,8 +138,8 @@ describe('OracleHelper Integration Tests', () => {
         //
         it('returns the first error when any of the one sql operations fails', function () {
           this.timeout(1000 * 20);
-          let sqlBad = `select foo as foo from dual`;
-          let params = [];
+          const sqlBad = `select foo as foo from dual`;
+          const params = {};
 
           return Promise.all([
             testObject.simpleExecute(sqlBad, params),
@@ -152,9 +155,9 @@ describe('OracleHelper Integration Tests', () => {
 
         it('returns the first error when any of the one sql operations fails', function () {
           this.timeout(1000 * 20);
-          let sqlGood = `select 'foo' as foo from dual`;
-          let sqlBad = `select foo as foo from dual`;
-          let params = [];
+          const sqlGood = `select 'foo' as foo from dual`;
+          const sqlBad = `select foo as foo from dual`;
+          const params = {};
 
           return Promise.all([
             testObject.simpleExecute(sqlGood, params),
