@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:promise/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+  },
+  "env": {
+    "browser": false,
+    "mocha": true,
+    "node": true,
+    "es6": true
+  },
+  "plugins": [
+    "promise"
+  ]
+}
