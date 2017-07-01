@@ -10,7 +10,7 @@
   },
   "private": false,
   "scripts": {
-    "test": "nyc mocha"
+    "test": "nyc mocha --reporter spec --recursive --timeout 10000"
   },
   "keywords": [
     "oracle",

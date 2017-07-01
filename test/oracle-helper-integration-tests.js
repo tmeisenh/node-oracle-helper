@@ -45,7 +45,7 @@ describe('OracleHelper Integration Tests', () => {
 
   describe('createPool', () => {
     it('it creates successfully', () => {
-      return testObject.createPool()
+      return testObject.createPool().should.eventually.be.fulfilled
         .then(() => {
           testObject.pool.should.not.be.undefined;
         });
@@ -66,8 +66,6 @@ describe('OracleHelper Integration Tests', () => {
       });
 
       it('it destroys the pool and resolves successfully when pool exists', () => {
-        pool.release.returns(Promise.resolve());
-
         return testObject.destroyPool().should.eventually.be.fulfilled
           .then(() => expect(testObject.pool).to.be.null);
       });
@@ -76,41 +74,40 @@ describe('OracleHelper Integration Tests', () => {
 
   describe('simpleExecute', () => {
     describe('success path', () => {
-      it('returns the results of the sql operation when successful', function () {
-        this.timeout(1000 * 20);
+      it('returns the results of the a single sql operation when successful', () => {
         const sql = `select 'foo' as foo from dual`;
         const params = {};
 
-        return testObject.simpleExecute(sql, params)
+        return testObject.simpleExecute(sql, params).should.eventually.be.fulfilled
           .then((results) => {
             results.rows[0].FOO.should.eql('foo');
             testObject.pool.connectionsInUse.should.eql(0);
           });
       });
 
-      it('returns the results all the sql operations when successful', function () {
-        this.timeout(1000 * 20);
+      it('returns successfully when used in Promise.all', () => {
         const sql = `select 'foo' as foo from dual`;
         const params = {};
+
         return Promise.all([
           testObject.simpleExecute(sql, params),
           testObject.simpleExecute(sql, params),
           testObject.simpleExecute(sql, params),
           testObject.simpleExecute(sql, params),
           testObject.simpleExecute(sql, params),
-        ]).then((resultsArray) => {
-          resultsArray.length.should.eql(5);
-          resultsArray[0].rows[0].FOO.should.eql('foo');
-          resultsArray[1].rows[0].FOO.should.eql('foo');
-          resultsArray[2].rows[0].FOO.should.eql('foo');
-          resultsArray[3].rows[0].FOO.should.eql('foo');
-          resultsArray[4].rows[0].FOO.should.eql('foo');
-          testObject.pool.connectionsInUse.should.eql(0);
-        });
+        ]).should.eventually.be.fulfilled
+          .then((resultsArray) => {
+            resultsArray.length.should.eql(5);
+            resultsArray[0].rows[0].FOO.should.eql('foo');
+            resultsArray[1].rows[0].FOO.should.eql('foo');
+            resultsArray[2].rows[0].FOO.should.eql('foo');
+            resultsArray[3].rows[0].FOO.should.eql('foo');
+            resultsArray[4].rows[0].FOO.should.eql('foo');
+            testObject.pool.connectionsInUse.should.eql(0);
+          });
       });
 
-      it('returns the results all the sql operations when successful', function () {
-        this.timeout(1000 * 20);
+      it('returns successfully when promised are chained', () => {
         const sql = `select 'foo' as foo from dual`;
         const params = {};
         return testObject.simpleExecute(sql, params)
@@ -126,15 +123,12 @@ describe('OracleHelper Integration Tests', () => {
 
     describe('error path', () => {
 
-      it('returns an error when the one sql operation failed', function () {
-        this.timeout(1000 * 20);
+      it('returns an error when the one sql operation failed', () => {
         const sql = `select foo as foo from dual`;
         const params = {};
 
-        return testObject.simpleExecute(sql, params)
-          .then((any) => {
-            sinon.assert.fail('unexpected promise resolve');
-          }).catch((error) => {
+        return testObject.simpleExecute(sql, params).should.eventually.be.rejected
+          .then((error) => {
             error.should.match(/^Error: ORA-00904: "FOO": invalid identifier/);
             testObject.pool.connectionsInUse.should.eql(0);
           });
@@ -146,7 +140,6 @@ describe('OracleHelper Integration Tests', () => {
         // The tests wait a small amount of time to give the connections time to finish and close their connections.
         //
         it('returns the first error when any of the one sql operations fails', function () {
-          this.timeout(1000 * 20);
           const sqlBad = `select foo as foo from dual`;
           const params = {};
 
@@ -156,14 +149,13 @@ describe('OracleHelper Integration Tests', () => {
             testObject.simpleExecute(sqlBad, params),
             testObject.simpleExecute(sqlBad, params),
             testObject.simpleExecute(sqlBad, params),
-          ]).then((any) => sinon.assert.fail('unexpected promise resolve'))
-            .catch((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
+          ]).should.eventually.be.rejected
+            .then((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
             .then(() => waitForConnectionsToClear(testObject.pool))
             .then(() => testObject.pool.connectionsInUse.should.eql(0));
         });
 
-        it('returns the first error when any of the one sql operations fails', function () {
-          this.timeout(1000 * 20);
+        it('alternates between good and bad sql returning the first error when any of the one sql operations fails', () => {
           const sqlGood = `select 'foo' as foo from dual`;
           const sqlBad = `select foo as foo from dual`;
           const params = {};
@@ -174,8 +166,8 @@ describe('OracleHelper Integration Tests', () => {
             testObject.simpleExecute(sqlGood, params),
             testObject.simpleExecute(sqlBad, params),
             testObject.simpleExecute(sqlGood, params)
-          ]).then((any) => sinon.assert.fail('unexpected promise resolve'))
-            .catch((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
+          ]).should.eventually.be.rejected
+            .then((firstError) => firstError.should.match(/^Error: ORA-00904: "FOO": invalid identifier/))
             .then(() => waitForConnectionsToClear(testObject.pool))
             .then(() => testObject.pool.connectionsInUse.should.eql(0));
         });
